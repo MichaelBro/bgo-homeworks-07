@@ -1,19 +1,22 @@
 package bank
 
-import (
-	"sort"
-)
+import "sort"
 
 type Transaction struct {
 	Id        uint64
 	UserId    uint64
 	Amount    int64
 	Timestamp uint32
-	Mcc       uint16
+	Mcc       Mcc
 }
 
 type List struct {
 	Transactions []Transaction
+}
+
+type Mcc struct {
+	Code     uint16
+	Category string
 }
 
 func (l *List) Sort() []Transaction {

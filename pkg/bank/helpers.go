@@ -2,15 +2,31 @@ package bank
 
 import "math/rand"
 
-var mccIncludeList = []uint16{4304, 4415, 5122, 5292, 4011, 4112, 5297, 5298, 7911, 7922, 5555, 5556}
-
-var mccCategory = map[string][]uint16{
-	"Авиабилеты": {4304, 4415},
-	"Аптеки":     {5122, 5292},
-	"Железнодорожные билеты": {4011, 4112},
-	"Супермаркеты":           {5297, 5298},
-	"Развлечения":            {7911, 7922},
-	"Финансы":                {5555, 5556},
+var mccIncludeList = []Mcc{
+	{
+		Code:     4304,
+		Category: "Авиабилеты",
+	},
+	{
+		Code:     5122,
+		Category: "Аптеки",
+	},
+	{
+		Code:     4304,
+		Category: "Железнодорожные билеты",
+	},
+	{
+		Code:     5298,
+		Category: "Супермаркеты",
+	},
+	{
+		Code:     7911,
+		Category: "Развлечения",
+	},
+	{
+		Code:     5555,
+		Category: "Финансы",
+	},
 }
 
 // range specification, note that min <= max
@@ -23,16 +39,16 @@ func (ir *IntRange) NextRandom(r *rand.Rand) int {
 	return r.Intn(ir.max-ir.min+1) + ir.min
 }
 
-func generateFakeTransactions(count int) *[]Transaction {
+func GenerateFakeTransactions(count int) []Transaction {
 	var transactions []Transaction
 
 	timestamp := 1577836800 // 01.01.2020
-	ir := IntRange{1000_00, 100_000_00}
-	irMcc := IntRange{0, 12}
+	ir := IntRange{1000, 10000}
+	irMcc := IntRange{1, len(mccIncludeList) - 1}
 
 	for i := 0; i < count; i++ {
 		r := rand.New(rand.NewSource(int64(timestamp)))
-		timestamp += 60 * 60 * 12
+		timestamp += 60 * 60 * 7
 		transactions = append(transactions, Transaction{
 			Id:        uint64(i),
 			UserId:    uint64(irMcc.NextRandom(r)),
@@ -41,7 +57,7 @@ func generateFakeTransactions(count int) *[]Transaction {
 			Mcc:       mccIncludeList[irMcc.NextRandom(r)],
 		})
 	}
-	return &transactions
+	return transactions
 }
 
 // Find takes a slice and looks for an element in it. If found it will
