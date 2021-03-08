@@ -74,8 +74,8 @@ var tests = []struct {
 		name: "#1 nil transactions",
 		args: args{
 			transactions: nil,
-			userId:       0,
-			goroutines:   0,
+			userId:       testUserId,
+			goroutines:   4,
 		},
 		want: nil,
 	},
@@ -210,5 +210,55 @@ func TestSumTransactionsByCategory(t *testing.T) {
 				t.Errorf("SumTransactionsByCategory() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+var wantForBenchmark = map[string]int64{"Железнодорожные билеты": 100000, "Развлечения": 100000}
+
+func BenchmarkSumTransactionsByCategory(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result := SumTransactionsByCategory(staticTransactions, testUserId)
+		b.StopTimer()
+		if !reflect.DeepEqual(result, wantForBenchmark) {
+			b.Fatalf("invalid result, got %v, want %v", result, wantForBenchmark)
+		}
+		b.StartTimer()
+	}
+}
+
+func BenchmarkSumCategoryTransactionsChanel(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result := SumCategoryTransactionsChanel(staticTransactions, testUserId, 4)
+		b.StopTimer()
+		if !reflect.DeepEqual(result, wantForBenchmark) {
+			b.Fatalf("invalid result, got %v, want %v", result, wantForBenchmark)
+		}
+		b.StartTimer()
+	}
+}
+
+func BenchmarkSumCategoryTransactionsMutex(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result := SumCategoryTransactionsMutex(staticTransactions, testUserId, 4)
+		b.StopTimer()
+		if !reflect.DeepEqual(result, wantForBenchmark) {
+			b.Fatalf("invalid result, got %v, want %v", result, wantForBenchmark)
+		}
+		b.StartTimer()
+	}
+}
+
+func BenchmarkSumCategoryTransactionsMutexStandalone(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		result := SumCategoryTransactionsMutexStandalone(staticTransactions, testUserId, 4)
+		b.StopTimer()
+		if !reflect.DeepEqual(result, wantForBenchmark) {
+			b.Fatalf("invalid result, got %v, want %v", result, wantForBenchmark)
+		}
+		b.StartTimer()
 	}
 }
